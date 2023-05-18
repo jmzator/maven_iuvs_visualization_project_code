@@ -1,26 +1,23 @@
 # This is a sample Python script.
-from typing import List, Any
 
 
 # Press ⌃R to execute it or replace it with your code.
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
 
 
-def print_hi(name):
+#def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
+#    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
 
 
 # Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+#if __name__ == '__main__':
+#    print_hi('PyCharm')
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
 
 ###### start trying PyCharm more ####
 
-import cv2
-import numpy as np
 import matplotlib.pyplot as plt
 
 #whiteblankimage = 255 * np.ones(shape=[512, 512, 3], dtype=np.uint8)
@@ -66,3 +63,47 @@ for row in [0, 1]:
         ax.imshow(imagegrid)
 
 plt.show()
+
+
+### try create array
+import cv2
+import glob
+import numpy as np
+
+X_data = []
+sample_pics = glob.glob("*.png")
+for myFile in sample_pics:
+    print(myFile)
+    image = cv2.imread(myFile)
+    X_data.append (image)
+
+#print('X_data shape:', np.array(X_data).shape)
+##error when print shape - inhomogenous
+
+
+
+
+# image grid code example from image grid module:
+#image-grid --folder ./images --n 4 --rows 1 --width 1000 --fill
+#saved image-grid.jpg, (166, 998, 3), 27.1KiB
+
+
+####################
+### code below for making gif of images 2023 May 18
+# adapted from Patrick O'Brien guest lecture ASTR3400
+
+#from PIL import Image
+#import glob
+#frames = []
+#imgs = sorted(glob.glob("Movie_{}M/*.png".format(int(resolution))))
+
+#for i in imgs:
+#    new_frame = Image.open(i)
+#    frames.append(new_frame)
+
+# Save into a GIF file that loops forever
+#frames[0].save(‘out.gif’,
+#save_all = True, append_images = frames[1:], optimize = False, duration = duration, loop = 0)
+
+### end gif code try
+####################
