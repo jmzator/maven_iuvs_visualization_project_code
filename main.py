@@ -143,9 +143,9 @@ for i, filename in enumerate(image_filenames):
     image = image.resize((tile_width, tile_height))
     grid_image.paste(image, (i % num_cols * tile_width, i // num_cols * tile_height))
 
-# save the grid image
+# save and show the grid image
 grid_image.save('grid_image.png')
-# plt.show() not sure if can do that, just open the output file instead
+# plt.show() not sure if can do that, just open the output file manually instead
 
 ### that worked for image grid of six sample png images!!!
 ### now try new method for making a gif of those sample images...
@@ -185,3 +185,8 @@ frames[0].save(output_file, format='GIF',
 #### when making gif, otherwise, code creates new grid image then
 ### adds that to gif...
 ### so maybe redo save path for that grid image....
+### to change save path, maybe use os.path.join(save_path, file_name) ??
+
+
+################
+# now,
