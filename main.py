@@ -128,19 +128,25 @@ grid_height = tile_height * num_rows
 grid_image = Image.new('RGB', (grid_width, grid_height))
 
 # load and resize the individual images
-image_filenames = [
-    'globe_sample_image_1.png',
-    'globe_sample_image_2.png',
-    'globe_sample_image_3.png',
-    'globe_sample_image_4.png',
-    'globe_sample_image_5.png',
-    'globe_sample_image_6.png',
-]
+#image_filenames = [
+#    'globe_sample_image_1.png',
+#    'globe_sample_image_2.png',
+#    'globe_sample_image_3.png',
+#    'globe_sample_image_4.png',
+#    'globe_sample_image_5.png',
+#    'globe_sample_image_6.png',
+#    'grid_image1.png',
+#    'grid_image2.png',
+#    'grid_image3.png',
+#    'grid_image4.png',
+#    'grid_image5.png',
+#    'grid_image6.png',
+#]
 
-for i, filename in enumerate(image_filenames):
-    image = Image.open(filename)
-    image = image.resize((tile_width, tile_height))
-    grid_image.paste(image, (i % num_cols * tile_width, i // num_cols * tile_height))
+#for i, filename in enumerate(image_filenames):
+#    image = Image.open(filename)
+#    image = image.resize((tile_width, tile_height))
+#    grid_image.paste(image, (i % num_cols * tile_width, i // num_cols * tile_height))
 
 # save and show the grid image
 #grid_image.save('grid_image.png')
@@ -153,30 +159,30 @@ from PIL import Image
 import glob
 
 # path to the directory containing the png images
-image_folder = '/Users/jmzator/Desktop/maven_iuvs_visualization_project/'
+#image_folder = '/Users/jmzator/Desktop/maven_iuvs_visualization_project/'
 
 # output gif filename
-output_file = '/Users/jmzator/Desktop/maven_iuvs_visualization_project/gif_outputs/clip_movie.gif'
+#output_file = '/Users/jmzator/Desktop/maven_iuvs_visualization_project/gif_outputs/clip_movie.gif'
 
 # list all png files in the directory
-png_files = glob.glob(image_folder + "*.png")
+#png_files = glob.glob(image_folder + "*.png")
 
 # sort the files alphabetically (assuming they are named in order)
-png_files.sort()
+#png_files.sort()
 
 # create a list to store the frames of the gif
-frames = []
+#frames = []
 
 # iterate over the png files and append each image as a frame
-for png_file in png_files:
-    img = Image.open(png_file)
-    frames.append(img)
+#for png_file in png_files:
+#    img = Image.open(png_file)
+#    frames.append(img)
 
 # save the frames as an animated gif
 #frames[0].save(output_file, format='GIF',
 #               append_images=frames[1:],
 #               save_all=True,
-#               duration=300,  # duration between frames in milliseconds
+#               duration=2000,  # duration between frames in milliseconds
 #               loop=0)  # 0 means an infinite loop, any other value specifies the number of loops
 
 ###### that worked for making a gif!
@@ -345,16 +351,79 @@ def histogram_equalize_detector_image(image: np.ndarray, mask: np.ndarray = None
 
 import astropy
 from astropy.io import fits
-a_file = astropy.io.fits.open('/Users/jmzator/Desktop/maven_iuvs_visualization_project/orbit18001/mvn_iuv_l1b_apoapse-orbit18001-fuv_20230114T071804_v13_r01.fits')
+a_file = astropy.io.fits.open('/Users/jmzator/Desktop/maven_iuvs_visualization_project/orbit18001/mvn_iuv_l1b_apoapse-orbit18001-muv_20230114T071804_v13_r01.fits')
 
 #with fits.open(a_file) as hdul:
 #    hdul.info()
 
-fits.info('/Users/jmzator/Desktop/maven_iuvs_visualization_project/orbit18001/mvn_iuv_l1b_apoapse-orbit18001-fuv_20230114T071804_v13_r01.fits')
+fits.info('/Users/jmzator/Desktop/maven_iuvs_visualization_project/orbit18001/mvn_iuv_l1b_apoapse-orbit18001-muv_20230114T071804_v13_r01.fits')
 
 make_equidistant_spectral_cutoff_indices(15)
 #turn_detector_image_to_3_channels()
 #histogram_equalize_grayscale_image()
 #histogram_equalize_rgb_image()
 #histogram_equalize_detector_image()
+
+# Kyle convo 2023 May 23 lunch break from PSG: really only need to use
+# the last function since that one calls the previous functions
+# just read in the muv files don't need fuv, etc.
+# the .gz on end of .fits is just compression and astropy knows how
+# to uncompress when read in those files, so no need to manually unzip
+
+# use numpy vstack, throw away all fuv, use only muv,
+# stack those primary ones - prob dimensions like (200, x, 19) first one
+#
+
+# 2023 May 25 Thursday try quick create gif with smooth transitions
+
+from PIL import Image, ImageSequence
+import glob
+
+# Path to the directory containing the PNG images
+image_folder = '/Users/jmzator/Desktop/maven_iuvs_visualization_project/'
+
+# Output GIF filename
+output_file = '/Users/jmzator/Desktop/maven_iuvs_visualization_project/gif_outputs/clip_movie.gif'
+
+# List all PNG files in the directory
+png_files = glob.glob(image_folder + "*.png")
+
+# Sort the files alphabetically (assuming they are named in order)
+png_files.sort()
+
+# Create a list to store the frames of the GIF
+frames = []
+
+# Iterate over the PNG files and append each image as a frame
+for i in range(len(png_files)):
+    img = Image.open(png_files[i])
+    frames.append(img)
+
+# Create a new list to store the frames with smooth transitions
+transition_frames = []
+
+# Iterate over the frames and apply cross-fade transitions
+for i in range(len(frames)):
+    # Fade-in transition for the first image
+    if i == 0:
+        transition_frames.append(frames[i])
+    else:
+        # Fade-in and fade-out transitions for the subsequent images
+        duration = 500  # Duration of the cross-fade transition in milliseconds
+        for alpha in range(0, 255, 5):  # Increase opacity from 0 to 255
+            # Apply the cross-fade transition
+            blended_frame = Image.blend(frames[i-1].convert("RGBA"), frames[i].convert("RGBA"), alpha/255.0)
+            blended_frame = blended_frame.convert("RGB")
+            transition_frames.append(blended_frame)
+            transition_frames[-1].info["duration"] = duration
+        transition_frames[-1].info["duration"] = duration
+
+# Save the frames with smooth transitions as an animated GIF
+transition_frames[0].save(output_file, format='GIF',
+                          append_images=transition_frames[1:],
+                          save_all=True,
+                          optimize=False,
+                          loop=0)  # 0 means an infinite loop, any other value specifies the number of loops
+
+#### pretty sure failure is due to image sizes being different
 
