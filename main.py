@@ -427,3 +427,133 @@ transition_frames[0].save(output_file, format='GIF',
 
 #### pretty sure failure is due to image sizes being different
 
+###########
+
+###########
+# drop in the code from Kyle to Justin & Nick
+# that gets ride of the seams in globe images
+# will probably use something like this in future
+
+# from Kyle email 2023-5-31 to Justin, Nick, and me
+# "see the attached Python function, with documentation and comments
+# that Zac added after I told him how it works. The idea is fairly
+# straightforward: just convolve a 3x3 sharpening matrix with the
+# image to be plotted. I skip the edges to avoid any potential problems
+# but it should work over the remainder of the image"
+# his code follows:
+
+def sharpen_image(image):
+
+"""
+
+Take an image and sharpen it using a high-pass filter matrix:
+
+|-----------|
+
+| 0 -1 0 |
+
+| -1 5 -1 |
+
+| 0 -1 0 |
+
+|-----------|
+
+
+
+Parameters
+
+----------
+
+image : array-like
+
+An (m,n,3) array of RGB tuples (the image).
+
+
+
+Returns
+
+-------
+
+sharpened_image : ndarray
+
+The original imaged sharpened by convolution with a high-pass filter.
+
+"""
+
+
+
+# the array I'll need to determine the sharpened image will need to be the size of the image + a 1 pixel border
+
+sharpening_array = np.zeros((image.shape[0] + 2, image.shape[1] + 2, 3))
+
+
+
+# fill the array: the interior is the same as the image, the sides are the same as the first/last row/column,
+
+# the corners can be whatever (here they are just 0) (this is only necessary to sharpen the edges of the image)
+
+sharpening_array[1:-1, 1:-1, :] = image
+
+sharpening_array[0, 1:-1, :] = image[0, :, :]
+
+sharpening_array[-1, 1:-1, :] = image[-1, :, :]
+
+sharpening_array[1:-1, 0, :] = image[:, 0, :]
+
+sharpening_array[1:-1, -1, :] = image[:, -1, :]
+
+
+
+# make a copy of the image, which will be modified as it gets sharpened
+
+sharpened_image = np.copy(image)
+
+
+
+# multiply each pixel by the sharpening matrix
+
+for integration in range(image.shape[0]):
+
+for position in range(image.shape[1]):
+
+for rgb in range(3):
+
+
+
+# if the pixel is not a border pixel in sharpening_array, this will execute
+
+try:
+
+sharpened_image[integration, position, rgb] = \
+
+5 * sharpening_array[integration + 1, position + 1, rgb] - \
+
+sharpening_array[integration, position + 1, rgb] - \
+
+sharpening_array[integration + 2, position + 1, rgb] - \
+
+sharpening_array[integration + 1, position, rgb] - \
+
+sharpening_array[integration + 1, position + 2, rgb]
+
+
+
+# if the pixel is a border pixel, no sharpening necessary
+
+except IndexError:
+
+continue
+
+
+
+# make sure new pixel rgb values aren't outside the range [0, 1]
+
+sharpened_image = np.where(sharpened_image > 1, 1, sharpened_image)
+
+sharpened_image = np.where(sharpened_image < 0, 0, sharpened_image)
+
+
+
+# return the new sharpened image
+
+return sharpened_image
